@@ -12,7 +12,9 @@ import (
 )
 
 type WorkerHandler interface {
+	Get(*gin.Context)
 	Create(*gin.Context)
+	Delete(*gin.Context)
 }
 
 type workerHandler struct {
@@ -21,6 +23,29 @@ type workerHandler struct {
 
 func NewWorkerHandler(s service.WorkerService) WorkerHandler {
 	return &workerHandler{s: s}
+}
+
+func (h *workerHandler) Get(c *gin.Context) {
+	id := c.Param("id")
+	w, err := h.s.Get(c, id)
+	if err != nil {
+		log.Printf("failed to get worker. error: %v", err)
+		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
+		return
+	}
+
+	if w == nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	c.JSON(http.StatusOK, model.GetWorkerResponse{
+		Worker: model.WorkerAPI{
+			ID:          w.ID,
+			Name:        w.Name,
+			Description: w.Description,
+		},
+	})
 }
 
 func (h *workerHandler) Create(c *gin.Context) {
@@ -43,4 +68,18 @@ func (h *workerHandler) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, model.CreateWorkerResponse{ID: id})
+}
+
+func (h *workerHandler) Delete(c *gin.Context) {
+	id := c.Param("id")
+	ok, err := h.s.Delete(c, id)
+	if err != nil {
+		log.Printf("failed to delete worker. error: %v", err)
+		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, model.DeleteWorkerResponse{
+		Deleted: ok,
+	})
 }

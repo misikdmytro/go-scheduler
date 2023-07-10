@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS workers(
-    id UUID PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL
 );

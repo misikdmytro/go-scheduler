@@ -13,6 +13,10 @@ type client struct {
 	baseAddress string
 }
 
+func newClient() *client {
+	return &client{baseAddress: "http://localhost:4001"}
+}
+
 func (c *client) CreateWorker(name string, desc string) (model.CreateWorkerResponse, error) {
 	cl := http.Client{}
 
@@ -53,4 +57,66 @@ func (c *client) CreateWorker(name string, desc string) (model.CreateWorkerRespo
 	}
 
 	return cwresp, nil
+}
+
+func (c *client) GetWorker(id string) (model.GetWorkerResponse, error) {
+	cl := http.Client{}
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf("%s/workers/%s", c.baseAddress, id),
+		nil,
+	)
+
+	if err != nil {
+		return model.GetWorkerResponse{}, err
+	}
+
+	resp, err := cl.Do(req)
+	if err != nil {
+		return model.GetWorkerResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return model.GetWorkerResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var gwresp model.GetWorkerResponse
+	if err := json.NewDecoder(resp.Body).Decode(&gwresp); err != nil {
+		return model.GetWorkerResponse{}, err
+	}
+
+	return gwresp, nil
+}
+
+func (c *client) DeleteWorker(id string) (model.DeleteWorkerResponse, error) {
+	cl := http.Client{}
+
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		fmt.Sprintf("%s/workers/%s", c.baseAddress, id),
+		nil,
+	)
+
+	if err != nil {
+		return model.DeleteWorkerResponse{}, err
+	}
+
+	resp, err := cl.Do(req)
+	if err != nil {
+		return model.DeleteWorkerResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return model.DeleteWorkerResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var dwresp model.DeleteWorkerResponse
+	if err := json.NewDecoder(resp.Body).Decode(&dwresp); err != nil {
+		return model.DeleteWorkerResponse{}, err
+	}
+
+	return dwresp, nil
 }
