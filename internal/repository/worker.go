@@ -22,15 +22,16 @@ func NewWorkerRepository(c config.DBConfig) WorkerRepository {
 	return &workerRepository{c: c}
 }
 
-func (r *workerRepository) Create(ctx context.Context, name, topic string) (string, error) {
-	db, err := sqlx.Connect("postgres", buildDataSourceName(r.c))
+func (r *workerRepository) Create(ctx context.Context, name, description string) (string, error) {
+	db, err := sqlx.Connect("postgres", BuildDataSourceName(r.c))
 	if err != nil {
 		return "", err
 	}
 
 	id := uuid.NewString()
-	if err := db.GetContext(ctx, &id, "CALL create_worker($1, $2, $3)", id, name, topic); err != nil {
-		return "", nil
+	_, err = db.ExecContext(ctx, "CALL create_worker($1, $2, $3)", id, name, description)
+	if err != nil {
+		return "", err
 	}
 
 	return id, nil

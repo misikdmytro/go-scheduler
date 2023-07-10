@@ -11,7 +11,7 @@ func NewEngine(
 ) *gin.Engine {
 	engine := gin.Default()
 
-	w := engine.Group("/worker")
+	w := engine.Group("/workers")
 	{
 		w.PUT("/", wh.Create)
 	}

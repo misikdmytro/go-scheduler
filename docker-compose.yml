@@ -10,7 +10,7 @@ services:
       - postgres
       - rabbitmq
     ports:
-      - 4100:4100
+      - 4001:4001
     environment:
       - GIN_MODE=release
     volumes:

@@ -29,11 +29,15 @@ type Config struct {
 }
 
 func LoadConfig() (Config, error) {
+	return LoadConfigFrom(".")
+}
+
+func LoadConfigFrom(in string) (Config, error) {
 	conf := viper.New()
 
 	conf.SetConfigName("config")
 	conf.SetConfigType("yml")
-	conf.AddConfigPath(".")
+	conf.AddConfigPath(in)
 
 	if err := conf.ReadInConfig(); err != nil {
 		return Config{}, err

@@ -21,7 +21,7 @@ func NewHealthHandler(s service.HealthService) HealthHandler {
 }
 
 func (h *healthHandler) Health(c *gin.Context) {
-	if err := h.s.Health(); err != nil {
+	if err := h.s.Health(c); err != nil {
 		log.Printf("failed to check health. error: %v", err)
 		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
 		return

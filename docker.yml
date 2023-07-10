@@ -1,6 +1,5 @@
 server:
-  port: 4100
-  host: 0.0.0.0
+  port: 4001
 db:
   host: postgres
   port: 5432

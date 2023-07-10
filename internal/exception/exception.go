@@ -6,6 +6,7 @@ type JobErrorCode int
 
 const (
 	InvalidRequest JobErrorCode = iota
+	NothingInserted
 
 	UnhealthService
 

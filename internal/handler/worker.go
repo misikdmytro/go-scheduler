@@ -35,12 +35,12 @@ func (h *workerHandler) Create(c *gin.Context) {
 		return
 	}
 
-	id, err := h.s.Create(c, req.Name, req.Topic)
+	id, err := h.s.Create(c, req.Name, req.Description)
 	if err != nil {
 		log.Printf("failed to create worker. error: %v", err)
 		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
 		return
 	}
 
-	c.JSON(http.StatusOK, model.CreateWorkerResponse{ID: id})
+	c.JSON(http.StatusCreated, model.CreateWorkerResponse{ID: id})
 }

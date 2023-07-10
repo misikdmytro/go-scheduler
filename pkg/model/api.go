@@ -6,14 +6,14 @@ type ErrorResponse struct {
 }
 
 type Worker struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Topic string `json:"topic"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type CreateWorkerRequest struct {
-	Name  string `json:"name"`
-	Topic string `json:"topic"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type CreateWorkerResponse struct {

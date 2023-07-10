@@ -19,8 +19,8 @@ func NewWorkerService(r repository.WorkerRepository) WorkerService {
 	return &workerService{r: r}
 }
 
-func (s *workerService) Create(c context.Context, name, topic string) (string, error) {
-	id, err := s.r.Create(c, name, topic)
+func (s *workerService) Create(c context.Context, name, description string) (string, error) {
+	id, err := s.r.Create(c, name, description)
 	if err != nil {
 		return "", exception.JobError{
 			Code:    exception.UnknownError,

@@ -6,7 +6,7 @@ import (
 	"github.com/misikdmytro/go-job-runner/internal/config"
 )
 
-func buildDataSourceName(c config.DBConfig) string {
+func BuildDataSourceName(c config.DBConfig) string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		c.Host,
