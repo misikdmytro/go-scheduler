@@ -3,3 +3,9 @@ CREATE TABLE IF NOT EXISTS workers(
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL
 );
+CREATE TABLE IF NOT EXISTS jobs(
+    id VARCHAR(36) PRIMARY KEY,
+    status TINYINT NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    output JSON
+);

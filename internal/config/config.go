@@ -22,10 +22,15 @@ type RabbitMQConfig struct {
 	Password string
 }
 
+type JobsConfig struct {
+	Exchange string
+}
+
 type Config struct {
 	Server   ServerConfig
 	DB       DBConfig
 	RabbitMQ RabbitMQConfig
+	Jobs     JobsConfig
 }
 
 func LoadConfig() (Config, error) {

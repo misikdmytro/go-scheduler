@@ -75,7 +75,11 @@ func (h *workerHandler) Delete(c *gin.Context) {
 	ok, err := h.s.Delete(c, id)
 	if err != nil {
 		log.Printf("failed to delete worker. error: %v", err)
-		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
+		c.JSON(http.StatusInternalServerError, toErrorResponse(exception.JobError{
+			Code:    exception.InvalidRequest,
+			Message: fmt.Sprintf("invalid request. error: %v", err),
+			Err:     err,
+		}))
 		return
 	}
 

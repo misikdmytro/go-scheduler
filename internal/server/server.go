@@ -7,6 +7,7 @@ import (
 
 func NewEngine(
 	wh handler.WorkerHandler,
+	jh handler.JobHandler,
 	hh handler.HealthHandler,
 ) *gin.Engine {
 	e := gin.Default()
@@ -16,6 +17,11 @@ func NewEngine(
 		w.GET("/:id", wh.Get)
 		w.PUT("/", wh.Create)
 		w.DELETE("/:id", wh.Delete)
+	}
+
+	j := e.Group("/jobs")
+	{
+		j.POST("/workers/:workerID", jh.Launch)
 	}
 
 	h := e.Group("/health")
