@@ -1,0 +1,15 @@
+server:
+  port: 4100
+  host: 0.0.0.0
+db:
+  host: postgres
+  port: 5432
+  user: username
+  password: password
+  dbName: db
+rabbitmq:
+  host: rabbitmq
+  port: 5672
+  user: username
+  password: password
+  exchange: jobs
