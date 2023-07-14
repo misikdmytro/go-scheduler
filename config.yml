@@ -13,3 +13,5 @@ rabbitmq:
   user: username
   password: password
   exchange: jobs
+jobs:
+  exchange: jobs

@@ -27,3 +27,7 @@ type GetWorkerResponse struct {
 type DeleteWorkerResponse struct {
 	Deleted bool `json:"deleted"`
 }
+
+type LaunchJobResponse struct {
+	JobID string `json:"job_id"`
+}

@@ -120,3 +120,39 @@ func (c *client) DeleteWorker(id string) (model.DeleteWorkerResponse, error) {
 
 	return dwresp, nil
 }
+
+func (c *client) LaunchJob(workerID string, body map[string]any) (model.LaunchJobResponse, error) {
+	cl := http.Client{}
+
+	b, err := json.Marshal(body)
+	if err != nil {
+		return model.LaunchJobResponse{}, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		fmt.Sprintf("%s/workers/%s/jobs", c.baseAddress, workerID),
+		bytes.NewReader(b),
+	)
+
+	if err != nil {
+		return model.LaunchJobResponse{}, err
+	}
+
+	resp, err := cl.Do(req)
+	if err != nil {
+		return model.LaunchJobResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return model.LaunchJobResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var ljresp model.LaunchJobResponse
+	if err := json.NewDecoder(resp.Body).Decode(&ljresp); err != nil {
+		return model.LaunchJobResponse{}, err
+	}
+
+	return ljresp, nil
+}

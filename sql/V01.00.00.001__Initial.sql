@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS workers(
 );
 CREATE TABLE IF NOT EXISTS jobs(
     id VARCHAR(36) PRIMARY KEY,
-    status TINYINT NOT NULL,
+    status SMALLINT NOT NULL,
     timestamp TIMESTAMP NOT NULL,
     output JSON
 );

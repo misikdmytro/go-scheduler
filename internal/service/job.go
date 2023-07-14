@@ -12,7 +12,7 @@ import (
 )
 
 type JobService interface {
-	LaunchJob(context.Context, string, map[string]any) error
+	LaunchJob(context.Context, string, map[string]any) (string, error)
 }
 
 type jobService struct {
@@ -24,30 +24,28 @@ func NewJobService(r repository.WorkerRepository, b broker.Broker[model.JobLaunc
 	return &jobService{r: r, b: b}
 }
 
-func (s *jobService) LaunchJob(c context.Context, workerID string, input map[string]any) error {
+func (s *jobService) LaunchJob(c context.Context, workerID string, input map[string]any) (string, error) {
 	w, err := s.r.Get(c, workerID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if w == nil {
-		return exception.JobError{
+		return "", exception.JobError{
 			Code:    exception.WorkerNotFound,
 			Message: fmt.Sprintf("worker '%s' not found", workerID),
 		}
 	}
 
+	jobID := uuid.NewString()
 	err = s.b.Publish(
 		c,
 		fmt.Sprintf("worker.%s", w.Name),
 		model.JobLaunchMessage{
-			JobID: uuid.NewString(),
+			JobID: jobID,
 			Input: input,
 		},
 	)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return jobID, err
 }

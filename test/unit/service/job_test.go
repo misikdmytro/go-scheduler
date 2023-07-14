@@ -58,12 +58,13 @@ func TestLaunchJob(t *testing.T) {
 			}
 
 			s := service.NewJobService(r, b)
-			err := s.LaunchJob(context.Background(), workerID, nil)
+			jobID, err := s.LaunchJob(context.Background(), workerID, nil)
 
 			if d.fails {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+				assert.NotEmpty(t, jobID)
 			}
 		})
 	}

@@ -23,17 +23,11 @@ func NewJobLaunchBroker(rc config.RabbitMQConfig, jc config.JobsConfig) Broker[m
 }
 
 func (b *jobLaunchBroker) Publish(c context.Context, key string, job model.JobLaunchMessage) error {
-	conn, err := amqp.Dial(BuildRabbitMQURL(b.rc))
+	ch, close, err := BuildRabbitMQChannel(b.rc)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer ch.Close()
+	defer close()
 
 	err = ch.ExchangeDeclare(
 		b.jc.Exchange,
