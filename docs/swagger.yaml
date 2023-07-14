@@ -1,4 +1,53 @@
+definitions:
+  model.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  model.LaunchJobResponse:
+    properties:
+      job_id:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /workers/{id}/jobs:
+    post:
+      consumes:
+      - application/json
+      description: Launches a job
+      parameters:
+      - description: Worker ID
+        in: path
+        name: workerID
+        required: true
+        type: string
+      - description: Input
+        in: body
+        name: input
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LaunchJobResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Launches a job
+      tags:
+      - jobs
 swagger: "2.0"

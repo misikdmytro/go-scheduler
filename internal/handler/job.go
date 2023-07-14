@@ -31,12 +31,12 @@ func NewJobHandler(s service.JobService) JobHandler {
 // @Produce json
 // @Param workerID path string true "Worker ID"
 // @Param input body map[string]any true "Input"
-// @Success 200 {object} LaunchJobResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /workers/{workerID}/jobs [post]
+// @Success 200 {object} model.LaunchJobResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /workers/{id}/jobs [post]
 func (h *jobHandler) Launch(c *gin.Context) {
-	workerID := c.Param("workerID")
+	workerID := c.Param("id")
 	var input map[string]any
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Printf("failed to bind input. error: %v", err)
