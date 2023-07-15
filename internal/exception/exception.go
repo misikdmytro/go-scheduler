@@ -5,14 +5,12 @@ import "fmt"
 type JobErrorCode int
 
 const (
-	InvalidRequest JobErrorCode = iota
+	InvalidRequest JobErrorCode = iota + 40000
 	NothingInserted
-
 	WorkerNotFound
 
+	UnknownError JobErrorCode = 50000
 	UnhealthService
-
-	UnknownError
 )
 
 type JobError struct {

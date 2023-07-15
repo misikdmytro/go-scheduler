@@ -41,7 +41,7 @@ func (h *workerHandler) Get(c *gin.Context) {
 	w, err := h.s.Get(c, id)
 	if err != nil {
 		log.Printf("failed to get worker. error: %v", err)
-		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
+		c.JSON(toErrorResponse(err))
 		return
 	}
 
@@ -74,7 +74,7 @@ func (h *workerHandler) Create(c *gin.Context) {
 	var req model.CreateWorkerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("failed to bind request. error: %v", err)
-		c.JSON(http.StatusBadRequest, toErrorResponse(exception.JobError{
+		c.JSON(toErrorResponse(exception.JobError{
 			Code:    exception.InvalidRequest,
 			Message: fmt.Sprintf("invalid request. error: %v", err),
 			Err:     err,
@@ -85,7 +85,7 @@ func (h *workerHandler) Create(c *gin.Context) {
 	id, err := h.s.Create(c, req.Name, req.Description)
 	if err != nil {
 		log.Printf("failed to create worker. error: %v", err)
-		c.JSON(http.StatusInternalServerError, toErrorResponse(err))
+		c.JSON(toErrorResponse(err))
 		return
 	}
 
@@ -108,7 +108,7 @@ func (h *workerHandler) Delete(c *gin.Context) {
 	ok, err := h.s.Delete(c, id)
 	if err != nil {
 		log.Printf("failed to delete worker. error: %v", err)
-		c.JSON(http.StatusInternalServerError, toErrorResponse(exception.JobError{
+		c.JSON(toErrorResponse(exception.JobError{
 			Code:    exception.InvalidRequest,
 			Message: fmt.Sprintf("invalid request. error: %v", err),
 			Err:     err,

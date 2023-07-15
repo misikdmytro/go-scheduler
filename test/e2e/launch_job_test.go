@@ -108,8 +108,45 @@ func TestLaunchJobShouldDoIt(t *testing.T) {
 		}
 		assert.Equal(t, lr.JobID, m.JobID)
 		assert.Equal(t, input, m.Input)
-		assert.LessOrEqual(t, 5*time.Second, time.Since(time.UnixMilli(m.Timestamp)))
+		assert.GreaterOrEqual(t, 5*time.Second, time.Since(time.UnixMilli(m.Timestamp)))
 	case <-timeout.Done():
 		t.Error(timeout.Err())
+	}
+}
+
+func TestLaunchJobShouldReturnBadRequest(t *testing.T) {
+	data := []struct {
+		testName string
+		workerID string
+		input    map[string]any
+	}{
+		{
+			testName: "worker not found",
+			workerID: uuid.NewString(),
+			input: map[string]any{
+				"test": "test",
+			},
+		},
+		{
+			testName: "worker id is empty",
+			workerID: "",
+			input: map[string]any{
+				"test": "test",
+			},
+		},
+		{
+			testName: "input is nil",
+			workerID: uuid.NewString(),
+			input:    nil,
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.testName, func(t *testing.T) {
+			c := newClient()
+			_, err := c.LaunchJob(d.workerID, d.input)
+			assert.Error(t, err)
+			assert.Equal(t, "unexpected status code: 400", err.Error())
+		})
 	}
 }
