@@ -108,8 +108,8 @@ func TestLaunchJobShouldDoIt(t *testing.T) {
 		}
 		assert.Equal(t, lr.JobID, m.JobID)
 		assert.Equal(t, input, m.Input)
+		assert.LessOrEqual(t, 5*time.Second, time.Since(time.UnixMilli(m.Timestamp)))
 	case <-timeout.Done():
 		t.Error(timeout.Err())
-
 	}
 }

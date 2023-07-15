@@ -24,22 +24,20 @@ func NewJobHandler(s service.JobService) JobHandler {
 }
 
 // Launch godoc
-// @Summary Launches a job
-// @Description Launches a job
-// @Tags jobs
+// @Summary Launch job
+// @Description Launch job
+// @Tags job
 // @Accept json
 // @Produce json
-// @Param workerID path string true "Worker ID"
-// @Param input body map[string]any true "Input"
+// @Param request body model.LaunchJobRequest true "Launch job request"
 // @Success 200 {object} model.LaunchJobResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 500 {object} model.ErrorResponse
-// @Router /workers/{id}/jobs [post]
+// @Router /job [post]
 func (h *jobHandler) Launch(c *gin.Context) {
-	workerID := c.Param("id")
-	var input map[string]any
-	if err := c.ShouldBindJSON(&input); err != nil {
-		log.Printf("failed to bind input. error: %v", err)
+	var req model.LaunchJobRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("failed to bind request. error: %v", err)
 		c.JSON(http.StatusBadRequest, toErrorResponse(exception.JobError{
 			Code:    exception.InvalidRequest,
 			Message: fmt.Sprintf("invalid request. error: %v", err),
@@ -48,7 +46,7 @@ func (h *jobHandler) Launch(c *gin.Context) {
 		return
 	}
 
-	jobID, err := h.s.LaunchJob(c, workerID, input)
+	jobID, err := h.s.LaunchJob(c, req.WorkerID, req.Input)
 	if err != nil {
 		log.Printf("failed to launch job. error: %v", err)
 		c.JSON(http.StatusInternalServerError, toErrorResponse(err))

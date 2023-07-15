@@ -1,4 +1,28 @@
 definitions:
+  model.CreateWorkerRequest:
+    properties:
+      description:
+        maxLength: 255
+        minLength: 1
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  model.CreateWorkerResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  model.DeleteWorkerResponse:
+    properties:
+      deleted:
+        type: boolean
+    type: object
   model.ErrorResponse:
     properties:
       code:
@@ -6,32 +30,68 @@ definitions:
       message:
         type: string
     type: object
+  model.GetWorkerResponse:
+    properties:
+      worker:
+        $ref: '#/definitions/model.WorkerAPI'
+    type: object
+  model.LaunchJobRequest:
+    properties:
+      input:
+        additionalProperties: {}
+        type: object
+      worker_id:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - input
+    - worker_id
+    type: object
   model.LaunchJobResponse:
     properties:
       job_id:
         type: string
     type: object
+  model.WorkerAPI:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /workers/{id}/jobs:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Health check
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+      summary: Health check
+      tags:
+      - health
+  /job:
     post:
       consumes:
       - application/json
-      description: Launches a job
+      description: Launch job
       parameters:
-      - description: Worker ID
-        in: path
-        name: workerID
-        required: true
-        type: string
-      - description: Input
+      - description: Launch job request
         in: body
-        name: input
+        name: request
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/model.LaunchJobRequest'
       produces:
       - application/json
       responses:
@@ -47,7 +107,94 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.ErrorResponse'
-      summary: Launches a job
+      summary: Launch job
       tags:
-      - jobs
+      - job
+  /workers:
+    put:
+      consumes:
+      - application/json
+      description: Create worker
+      parameters:
+      - description: Create worker request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateWorkerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.CreateWorkerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Create worker
+      tags:
+      - worker
+  /workers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete worker
+      parameters:
+      - description: Worker ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeleteWorkerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Delete worker
+      tags:
+      - worker
+    get:
+      consumes:
+      - application/json
+      description: Get worker
+      parameters:
+      - description: Worker ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetWorkerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get worker
+      tags:
+      - worker
 swagger: "2.0"

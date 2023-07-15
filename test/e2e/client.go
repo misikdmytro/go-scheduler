@@ -124,14 +124,19 @@ func (c *client) DeleteWorker(id string) (model.DeleteWorkerResponse, error) {
 func (c *client) LaunchJob(workerID string, body map[string]any) (model.LaunchJobResponse, error) {
 	cl := http.Client{}
 
-	b, err := json.Marshal(body)
+	r := model.LaunchJobRequest{
+		WorkerID: workerID,
+		Input:    body,
+	}
+
+	b, err := json.Marshal(r)
 	if err != nil {
 		return model.LaunchJobResponse{}, err
 	}
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		fmt.Sprintf("%s/workers/%s/jobs", c.baseAddress, workerID),
+		fmt.Sprintf("%s/jobs", c.baseAddress),
 		bytes.NewReader(b),
 	)
 

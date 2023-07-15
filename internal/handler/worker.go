@@ -25,6 +25,17 @@ func NewWorkerHandler(s service.WorkerService) WorkerHandler {
 	return &workerHandler{s: s}
 }
 
+// Get godoc
+// @Summary Get worker
+// @Description Get worker
+// @Tags worker
+// @Accept json
+// @Produce json
+// @Param id path string true "Worker ID"
+// @Success 200 {object} model.GetWorkerResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /workers/{id} [get]
 func (h *workerHandler) Get(c *gin.Context) {
 	id := c.Param("id")
 	w, err := h.s.Get(c, id)
@@ -48,6 +59,17 @@ func (h *workerHandler) Get(c *gin.Context) {
 	})
 }
 
+// Create godoc
+// @Summary Create worker
+// @Description Create worker
+// @Tags worker
+// @Accept json
+// @Produce json
+// @Param request body model.CreateWorkerRequest true "Create worker request"
+// @Success 201 {object} model.CreateWorkerResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /workers [put]
 func (h *workerHandler) Create(c *gin.Context) {
 	var req model.CreateWorkerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -70,6 +92,17 @@ func (h *workerHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, model.CreateWorkerResponse{ID: id})
 }
 
+// Delete godoc
+// @Summary Delete worker
+// @Description Delete worker
+// @Tags worker
+// @Accept json
+// @Produce json
+// @Param id path string true "Worker ID"
+// @Success 200 {object} model.DeleteWorkerResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /workers/{id} [delete]
 func (h *workerHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	ok, err := h.s.Delete(c, id)

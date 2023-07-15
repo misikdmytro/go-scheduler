@@ -28,6 +28,11 @@ type DeleteWorkerResponse struct {
 	Deleted bool `json:"deleted"`
 }
 
+type LaunchJobRequest struct {
+	WorkerID string         `json:"worker_id" binding:"required,min=1,max=255"`
+	Input    map[string]any `json:"input" binding:"required"`
+}
+
 type LaunchJobResponse struct {
 	JobID string `json:"job_id"`
 }

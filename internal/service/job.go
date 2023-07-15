@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/misikdmytro/go-job-runner/internal/broker"
@@ -42,8 +43,9 @@ func (s *jobService) LaunchJob(c context.Context, workerID string, input map[str
 		c,
 		fmt.Sprintf("worker.%s", w.Name),
 		model.JobLaunchMessage{
-			JobID: jobID,
-			Input: input,
+			JobID:     jobID,
+			Timestamp: time.Now().UnixMilli(),
+			Input:     input,
 		},
 	)
 

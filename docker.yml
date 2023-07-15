@@ -11,4 +11,5 @@ rabbitmq:
   port: 5672
   user: username
   password: password
+jobs:
   exchange: jobs

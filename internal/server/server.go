@@ -14,15 +14,18 @@ func NewEngine(
 	hh handler.HealthHandler,
 ) *gin.Engine {
 	e := gin.Default()
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/"
 
 	w := e.Group("/workers")
 	{
 		w.GET("/:id", wh.Get)
 		w.PUT("/", wh.Create)
 		w.DELETE("/:id", wh.Delete)
+	}
 
-		w.POST("/:id/jobs", jh.Launch)
+	j := e.Group("/jobs")
+	{
+		j.POST("/", jh.Launch)
 	}
 
 	h := e.Group("/health")
