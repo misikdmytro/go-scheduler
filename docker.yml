@@ -12,4 +12,8 @@ rabbitmq:
   user: username
   password: password
 jobs:
-  exchange: jobs
+  exchange: jobs-docker
+jobEventsConsumer:
+  consumer: job-events-docker-consumer
+  queue: job-events-docker
+  exchange: job-events-docker

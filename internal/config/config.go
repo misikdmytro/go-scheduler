@@ -26,11 +26,19 @@ type JobsConfig struct {
 	Exchange string
 }
 
+type ConsumerConfig struct {
+	Consumer   string
+	Queue      string
+	Exchange   string
+	RoutingKey string
+}
+
 type Config struct {
-	Server   ServerConfig
-	DB       DBConfig
-	RabbitMQ RabbitMQConfig
-	Jobs     JobsConfig
+	Server            ServerConfig
+	DB                DBConfig
+	RabbitMQ          RabbitMQConfig
+	Jobs              JobsConfig
+	JobEventsConsumer ConsumerConfig
 }
 
 func LoadConfig() (Config, error) {

@@ -11,6 +11,7 @@ const (
 	WorkerAlreadyExists
 
 	UnknownError JobErrorCode = 50000
+	FailedToAppendJobStatus
 	UnhealthService
 )
 

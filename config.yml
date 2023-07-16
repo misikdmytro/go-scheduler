@@ -13,4 +13,8 @@ rabbitmq:
   user: username
   password: password
 jobs:
-  exchange: jobs
+  exchange: jobs-local
+jobEventsConsumer:
+  consumer: job-events-local-consumer
+  queue: job-events-local
+  exchange: job-events-local

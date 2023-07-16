@@ -14,19 +14,25 @@ import (
 
 type JobService interface {
 	LaunchJob(context.Context, string, map[string]any) (string, error)
+	AppendJobStatus(context.Context, string, string, time.Time, map[string]any) (int64, error)
 }
 
 type jobService struct {
-	r repository.WorkerRepository
-	b broker.Broker[model.JobLaunchMessage]
+	wr repository.WorkerRepository
+	jr repository.JobRepository
+	b  broker.Broker[model.JobLaunchMessage]
 }
 
-func NewJobService(r repository.WorkerRepository, b broker.Broker[model.JobLaunchMessage]) JobService {
-	return &jobService{r: r, b: b}
+func NewJobService(
+	wr repository.WorkerRepository,
+	jr repository.JobRepository,
+	b broker.Broker[model.JobLaunchMessage],
+) JobService {
+	return &jobService{wr: wr, jr: jr, b: b}
 }
 
 func (s *jobService) LaunchJob(c context.Context, workerID string, input map[string]any) (string, error) {
-	w, err := s.r.Get(c, workerID)
+	w, err := s.wr.Get(c, workerID)
 	if err != nil {
 		return "", err
 	}
@@ -50,4 +56,17 @@ func (s *jobService) LaunchJob(c context.Context, workerID string, input map[str
 	)
 
 	return jobID, err
+}
+
+func (s *jobService) AppendJobStatus(c context.Context, jobID, message string, timestamp time.Time, output map[string]any) (int64, error) {
+	id, err := s.jr.AppendStatus(c, jobID, message, timestamp, output)
+	if err != nil {
+		return 0, exception.JobError{
+			Code:    exception.FailedToAppendJobStatus,
+			Err:     err,
+			Message: fmt.Sprintf("failed to append job status for job '%s'", jobID),
+		}
+	}
+
+	return id, nil
 }
