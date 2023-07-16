@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/misikdmytro/go-job-runner/internal/config"
+	"github.com/misikdmytro/go-job-runner/internal/exception"
 	"github.com/misikdmytro/go-job-runner/internal/model"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 type WorkerRepository interface {
@@ -52,7 +54,20 @@ func (r *workerRepository) Create(ctx context.Context, name, description string)
 
 	var id string
 	err = db.GetContext(ctx, &id, "SELECT create_worker ($1, $2)", name, description)
-	return id, err
+	if err != nil {
+		var pErr *pq.Error
+		if errors.As(err, &pErr) && pErr.Code == "23505" {
+			// duplicate key value violates unique constraint "workers_name_key"
+			return "", exception.JobError{
+				Code:    exception.WorkerAlreadyExists,
+				Message: fmt.Sprintf("worker with name '%s' already exists", name),
+			}
+		}
+
+		return "", err
+	}
+
+	return id, nil
 }
 
 func (r *workerRepository) Delete(ctx context.Context, id string) (bool, error) {

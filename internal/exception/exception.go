@@ -8,6 +8,7 @@ const (
 	InvalidRequest JobErrorCode = iota + 40000
 	NothingInserted
 	WorkerNotFound
+	WorkerAlreadyExists
 
 	UnknownError JobErrorCode = 50000
 	UnhealthService

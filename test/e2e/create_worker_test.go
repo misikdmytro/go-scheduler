@@ -22,6 +22,21 @@ func TestCreateWorkerShouldReturnCreated(t *testing.T) {
 	assert.NotEmpty(t, r.ID)
 }
 
+func TestCreateWorkerWithSameNameShouldReturnBadRequest(t *testing.T) {
+	c := newClient()
+	n, d := fmt.Sprintf("test-%s", uuid.NewString()), fmt.Sprintf("test-%s", uuid.NewString())
+	_, err := c.CreateWorker(n, d)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = c.CreateWorker(n, d)
+
+	assert.Error(t, err)
+	assert.Equal(t, err.Error(), "unexpected status code: 400")
+}
+
 func TestCreateWorkerShouldReturnBadRequest(t *testing.T) {
 	d := []struct {
 		testName string
