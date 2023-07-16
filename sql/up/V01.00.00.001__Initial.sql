@@ -5,8 +5,10 @@ CREATE TABLE IF NOT EXISTS workers(
 );
 CREATE UNIQUE INDEX IF NOT EXISTS workers_name_uindex ON workers (name);
 CREATE TABLE IF NOT EXISTS jobs(
-    id VARCHAR(36) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
+    job_id VARCHAR(36),
     message TEXT NOT NULL,
     timestamp TIMESTAMP NOT NULL,
     output JSON
 );
+CREATE INDEX IF NOT EXISTS jobs_job_id_index ON jobs (job_id);

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/misikdmytro/go-job-runner/internal/config"
 	"github.com/misikdmytro/go-job-runner/internal/model"
@@ -34,7 +33,7 @@ func (r *workerRepository) Get(ctx context.Context, id string) (*model.Worker, e
 	}
 
 	var w model.Worker
-	if err = db.GetContext(ctx, &w, "SELECT id, name, description FROM workers WHERE id = $1 LIMIT 1", id); err != nil {
+	if err = db.GetContext(ctx, &w, "SELECT * FROM get_worker($1)", id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -51,13 +50,9 @@ func (r *workerRepository) Create(ctx context.Context, name, description string)
 		return "", err
 	}
 
-	id := uuid.NewString()
-	_, err = db.ExecContext(ctx, "INSERT INTO workers(id, name, description) VALUES ($1, $2, $3)", id, name, description)
-	if err != nil {
-		return "", err
-	}
-
-	return id, nil
+	var id string
+	err = db.GetContext(ctx, &id, "SELECT create_worker ($1, $2)", name, description)
+	return id, err
 }
 
 func (r *workerRepository) Delete(ctx context.Context, id string) (bool, error) {
@@ -66,15 +61,7 @@ func (r *workerRepository) Delete(ctx context.Context, id string) (bool, error) 
 		return false, err
 	}
 
-	res, err := db.ExecContext(ctx, "DELETE FROM workers WHERE id = $1;", id)
-	if err != nil {
-		return false, err
-	}
-
-	n, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	return n > 0, nil
+	var deletedID *string
+	err = db.GetContext(ctx, &deletedID, "SELECT delete_worker($1)", id)
+	return deletedID != nil && *deletedID == id, err
 }
