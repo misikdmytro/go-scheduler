@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/misikdmytro/go-job-runner/internal/consumer"
 	"github.com/misikdmytro/go-job-runner/internal/dependency"
 )
 
@@ -19,8 +20,8 @@ func main() {
 		panic(err)
 	}
 
-	interruption, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
+	interruption, cancel1 := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel1()
 
 	addr := fmt.Sprintf("%s:%s", d.CFG.Server.Host, d.CFG.Server.Port)
 	srv := &http.Server{
@@ -40,10 +41,13 @@ func main() {
 	}()
 
 	go func() {
-		defer d.JC.Close()
 		log.Printf("start consumer")
-		if err := d.JC.Consume(interruption); err != nil {
-			if errors.Is(err, context.Canceled) {
+		if err := d.JC.Setup(); err != nil {
+			panic(err)
+		}
+
+		if err := d.JC.Consume(); err != nil {
+			if errors.Is(err, consumer.ErrConsumerClosed) {
 				return
 			}
 
@@ -51,25 +55,22 @@ func main() {
 		}
 	}()
 
-exit:
-	for {
-		select {
-		case <-interruption.Done():
-			log.Printf("interrupted")
-			break exit
-		case err := <-d.JC.Err():
-			log.Printf("consumer error: %s", err)
-		}
-	}
+	<-interruption.Done()
+	log.Printf("interrupted")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx, cancel2 := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel2()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		panic(err)
 	}
-
 	log.Printf("server stopped")
-	<-ctx.Done()
 
-	log.Printf("server exited")
+	if err := d.JC.Shutdown(ctx); err != nil {
+		panic(err)
+	}
+	log.Printf("consumer stopped")
+
+	<-ctx.Done()
+	log.Printf("graceful shutdown")
 }

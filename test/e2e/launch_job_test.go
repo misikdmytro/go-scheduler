@@ -32,7 +32,7 @@ func TestLaunchJobShouldDoIt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b, close, err := broker.BuildRabbitMQChannel(cfg.RabbitMQ)
+	b, close, err := broker.NewRabbitMQChannel(cfg.RabbitMQ)
 	if err != nil {
 		t.Fatal(err)
 	}

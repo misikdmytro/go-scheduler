@@ -3,25 +3,29 @@ package consumer
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/misikdmytro/go-job-runner/internal/broker"
 	"github.com/misikdmytro/go-job-runner/internal/config"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+var ErrConsumerClosed = fmt.Errorf("consumer closed")
+
 type Consumer interface {
-	Consume(context.Context) error
-	Err() chan error
-	Close() error
+	Setup() error
+	Consume() error
+	Shutdown(context.Context) error
 }
 
-type consumeCallback[T any] func(context.Context, T) error
+type consumeCallback[T any] func(context.Context, T, error) error
 
 type rabbitMQConsumer[T any] struct {
 	rc     config.RabbitMQConfig
 	cc     config.ConsumerConfig
-	err    chan error
+	close  func() error
 	cancel func()
+	b      *amqp.Channel
 }
 
 func newRabbitMQConsumer[T any](
@@ -31,17 +35,19 @@ func newRabbitMQConsumer[T any](
 	return &rabbitMQConsumer[T]{
 		rc:     rc,
 		cc:     cc,
-		err:    make(chan error),
 		cancel: func() {},
+		close:  func() error { return nil },
 	}
 }
 
-func (r *rabbitMQConsumer[T]) consume(ctx context.Context, callback consumeCallback[T]) error {
-	b, close, err := broker.BuildRabbitMQChannel(r.rc)
+func (r *rabbitMQConsumer[T]) setup() error {
+	b, close, err := broker.NewRabbitMQChannel(r.rc)
 	if err != nil {
 		return err
 	}
-	defer close()
+
+	r.b = b
+	r.close = close
 
 	err = b.ExchangeDeclare(
 		r.cc.Exchange,
@@ -79,8 +85,12 @@ func (r *rabbitMQConsumer[T]) consume(ctx context.Context, callback consumeCallb
 		return err
 	}
 
-	msgs, err := b.Consume(
-		q.Name,
+	return nil
+}
+
+func (r *rabbitMQConsumer[T]) consume(callback consumeCallback[T]) error {
+	msgs, err := r.b.Consume(
+		r.cc.Queue,
 		r.cc.Consumer,
 		false,
 		false,
@@ -92,44 +102,38 @@ func (r *rabbitMQConsumer[T]) consume(ctx context.Context, callback consumeCallb
 		return err
 	}
 
-	cancel, c := context.WithCancel(ctx)
+	ctxt, c := context.WithCancel(context.Background())
+	defer c()
+
 	r.cancel = c
 
-	defer c()
 	for {
 		select {
-		case <-cancel.Done():
-			r.err <- cancel.Err()
+		case <-ctxt.Done():
+			return ErrConsumerClosed
 		case msg := <-msgs:
 			var m T
 			if err := json.Unmarshal(msg.Body, &m); err != nil {
-				if nErr := msg.Nack(false, false); nErr != nil {
-					r.err <- errors.Join(nErr, err)
-				}
-
-				r.err <- err
+				msg.Nack(false, false)
+				callback(ctxt, m, err)
+				continue
 			}
 
-			if err := callback(cancel, m); err != nil {
-				if nErr := msg.Nack(false, true); nErr != nil {
-					r.err <- errors.Join(nErr, err)
-				}
-
-				r.err <- err
+			if err := callback(ctxt, m, nil); err != nil {
+				msg.Nack(false, true)
+				callback(ctxt, m, err)
+				continue
 			}
 
 			if err := msg.Ack(false); err != nil {
-				if nErr := msg.Nack(false, false); nErr != nil {
-					r.err <- errors.Join(nErr, err)
-				}
-
-				r.err <- err
+				msg.Nack(false, false)
+				callback(ctxt, m, err)
 			}
 		}
 	}
 }
 
-func (r *rabbitMQConsumer[T]) close() error {
+func (r *rabbitMQConsumer[T]) shutdown() error {
 	r.cancel()
-	return nil
+	return r.close()
 }

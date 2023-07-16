@@ -13,8 +13,9 @@ rabbitmq:
   user: username
   password: password
 jobs:
-  exchange: jobs-local
+  exchange: jobs
 jobEventsConsumer:
-  consumer: job-events-local-consumer
-  queue: job-events-local
-  exchange: job-events-local
+  consumer: job-events-consumer
+  queue: job-events
+  exchange: job-events
+  routingKey: event

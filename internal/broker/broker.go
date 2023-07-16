@@ -22,8 +22,8 @@ func NewJobLaunchBroker(rc config.RabbitMQConfig, jc config.JobsConfig) Broker[m
 	return &jobLaunchBroker{rc: rc, jc: jc}
 }
 
-func (b *jobLaunchBroker) Publish(c context.Context, key string, job model.JobLaunchMessage) error {
-	ch, close, err := BuildRabbitMQChannel(b.rc)
+func (b *jobLaunchBroker) Publish(ctxt context.Context, key string, job model.JobLaunchMessage) error {
+	ch, close, err := NewRabbitMQChannel(b.rc)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,8 @@ func (b *jobLaunchBroker) Publish(c context.Context, key string, job model.JobLa
 		return err
 	}
 
-	return ch.Publish(
+	return ch.PublishWithContext(
+		ctxt,
 		b.jc.Exchange,
 		key,
 		true,

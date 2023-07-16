@@ -38,7 +38,7 @@ func TestCreate(t *testing.T) {
 
 	for _, d := range data {
 		t.Run(d.testName, func(t *testing.T) {
-			r := &repoMock{}
+			r := &workerRepoMock{}
 			r.On("Create", mock.Anything, d.name, d.desc).Return(d.res, d.err)
 
 			s := service.NewWorkerService(r)
@@ -79,7 +79,7 @@ func TestGet(t *testing.T) {
 
 	for _, d := range data {
 		t.Run(d.testName, func(t *testing.T) {
-			r := &repoMock{}
+			r := &workerRepoMock{}
 			r.On("Get", mock.Anything, d.id).Return(d.res, d.err)
 
 			s := service.NewWorkerService(r)
@@ -118,7 +118,7 @@ func TestDelete(t *testing.T) {
 
 	for _, d := range data {
 		t.Run(d.testName, func(t *testing.T) {
-			r := &repoMock{}
+			r := &workerRepoMock{}
 			r.On("Delete", mock.Anything, d.id).Return(d.res, d.err)
 
 			s := service.NewWorkerService(r)

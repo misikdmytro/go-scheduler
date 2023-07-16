@@ -10,7 +10,7 @@ import (
 
 var emptyClose = func() error { return nil }
 
-func BuildRabbitMQChannel(c config.RabbitMQConfig) (*amqp.Channel, func() error, error) {
+func NewRabbitMQChannel(c config.RabbitMQConfig) (*amqp.Channel, func() error, error) {
 	conn, err := amqp.Dial(BuildRabbitMQURL(c))
 	if err != nil {
 		return nil, emptyClose, err

@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/misikdmytro/go-job-runner/internal/config"
@@ -25,20 +26,25 @@ func NewJobStatusConsumer(
 	}
 }
 
-func (c *jobStatusConsumer) Consume(ctxt context.Context) error {
-	return c.consume(ctxt, c.consumeCallback)
+func (c *jobStatusConsumer) Setup() error {
+	return c.setup()
 }
 
-func (c *jobStatusConsumer) Err() chan error {
-	return c.err
+func (c *jobStatusConsumer) Consume() error {
+	return c.consume(c.consumeCallback)
 }
 
-func (c *jobStatusConsumer) Close() error {
-	return c.close()
+func (c *jobStatusConsumer) Shutdown(ctx context.Context) error {
+	return c.shutdown()
 }
 
-func (c *jobStatusConsumer) consumeCallback(ctx context.Context, m model.JobEventMessage) error {
-	_, err := c.j.AppendJobStatus(
+func (c *jobStatusConsumer) consumeCallback(ctx context.Context, m model.JobEventMessage, err error) error {
+	if err != nil {
+		log.Printf("consuming job statuses error: %v", err)
+		return nil
+	}
+
+	_, err = c.j.AppendJobStatus(
 		ctx,
 		m.JobID,
 		m.Message,
