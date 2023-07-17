@@ -1,0 +1,5 @@
+CREATE OR REPLACE FUNCTION delete_worker(worker_id VARCHAR(36)) RETURNS VARCHAR(36) AS $$
+DELETE FROM workers
+WHERE id = worker_id
+RETURNING id;
+$$ LANGUAGE SQL;
