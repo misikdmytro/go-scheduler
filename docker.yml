@@ -1,0 +1,20 @@
+server:
+  port: 4001
+db:
+  host: postgres
+  port: 5432
+  user: username
+  password: password
+  dbName: db
+rabbitmq:
+  host: rabbitmq
+  port: 5672
+  user: username
+  password: password
+jobs:
+  exchange: jobs
+jobEventsConsumer:
+  consumer: job-events-consumer
+  queue: job-events
+  exchange: job-events
+  routingKey: event
