@@ -97,7 +97,7 @@ func TestLaunchJobShouldDoIt(t *testing.T) {
 		assert.Equal(t, input, m.Input)
 		assert.GreaterOrEqual(t, 5*time.Second, time.Since(time.UnixMilli(m.Timestamp)))
 	case <-timeout.Done():
-		t.Error(timeout.Err())
+		t.Fatal(timeout.Err())
 	}
 }
 
