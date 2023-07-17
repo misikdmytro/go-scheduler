@@ -27,10 +27,8 @@ type JobsConfig struct {
 }
 
 type ConsumerConfig struct {
-	Consumer   string
-	Queue      string
-	Exchange   string
-	RoutingKey string
+	Consumer string
+	Queue    string
 }
 
 type Config struct {

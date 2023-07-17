@@ -50,19 +50,6 @@ func TestLaunchJobShouldDoIt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = b.ExchangeDeclare(
-		cfg.Jobs.Exchange,
-		"topic",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	err = b.QueueBind(
 		q.Name,
 		fmt.Sprintf("worker.%s", wn),

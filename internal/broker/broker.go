@@ -29,19 +29,6 @@ func (b *jobLaunchBroker) Publish(ctxt context.Context, key string, job model.Jo
 	}
 	defer close()
 
-	err = ch.ExchangeDeclare(
-		b.jc.Exchange,
-		"topic",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
 	bytes, err := json.Marshal(job)
 	if err != nil {
 		return err

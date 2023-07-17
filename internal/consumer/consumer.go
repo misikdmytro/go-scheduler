@@ -7,13 +7,11 @@ import (
 
 	"github.com/misikdmytro/go-job-runner/internal/broker"
 	"github.com/misikdmytro/go-job-runner/internal/config"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var ErrConsumerClosed = fmt.Errorf("consumer closed")
 
 type Consumer interface {
-	Setup() error
 	Consume() error
 	Shutdown(context.Context) error
 }
@@ -25,7 +23,6 @@ type rabbitMQConsumer[T any] struct {
 	cc     config.ConsumerConfig
 	close  func() error
 	cancel func()
-	b      *amqp.Channel
 }
 
 func newRabbitMQConsumer[T any](
@@ -40,56 +37,14 @@ func newRabbitMQConsumer[T any](
 	}
 }
 
-func (r *rabbitMQConsumer[T]) setup() error {
+func (r *rabbitMQConsumer[T]) consume(callback consumeCallback[T]) error {
 	b, close, err := broker.NewRabbitMQChannel(r.rc)
 	if err != nil {
 		return err
 	}
+	defer close()
 
-	r.b = b
-	r.close = close
-
-	err = b.ExchangeDeclare(
-		r.cc.Exchange,
-		"direct",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	q, err := b.QueueDeclare(
-		r.cc.Queue,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = b.QueueBind(
-		q.Name,
-		r.cc.RoutingKey,
-		r.cc.Exchange,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *rabbitMQConsumer[T]) consume(callback consumeCallback[T]) error {
-	msgs, err := r.b.Consume(
+	msgs, err := b.Consume(
 		r.cc.Queue,
 		r.cc.Consumer,
 		false,

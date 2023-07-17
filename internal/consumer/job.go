@@ -26,10 +26,6 @@ func NewJobStatusConsumer(
 	}
 }
 
-func (c *jobStatusConsumer) Setup() error {
-	return c.setup()
-}
-
 func (c *jobStatusConsumer) Consume() error {
 	return c.consume(c.consumeCallback)
 }

@@ -3,7 +3,6 @@ package e2e_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -12,9 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/misikdmytro/go-job-runner/internal/broker"
 	"github.com/misikdmytro/go-job-runner/internal/config"
-	"github.com/misikdmytro/go-job-runner/internal/consumer"
 	"github.com/misikdmytro/go-job-runner/internal/repository"
-	"github.com/misikdmytro/go-job-runner/internal/service"
 	"github.com/misikdmytro/go-job-runner/pkg/model"
 	"github.com/sethvargo/go-retry"
 
@@ -26,29 +23,6 @@ func TestConsumerJobStatusesShouldSaveResultToDB(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	ctxt, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	wr := repository.NewWorkerRepository(cfg.DB)
-	jr := repository.NewJobRepository(cfg.DB)
-	b := broker.NewJobLaunchBroker(cfg.RabbitMQ, cfg.Jobs)
-
-	js := service.NewJobService(wr, jr, b)
-
-	c := consumer.NewJobStatusConsumer(cfg.RabbitMQ, cfg.JobEventsConsumer, js)
-	defer c.Shutdown(ctxt)
-
-	err = c.Setup()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	go func() {
-		if err := c.Consume(); !errors.Is(err, consumer.ErrConsumerClosed) {
-			panic(err)
-		}
-	}()
 
 	ch, close, err := broker.NewRabbitMQChannel(cfg.RabbitMQ)
 	if err != nil {
@@ -71,9 +45,9 @@ func TestConsumerJobStatusesShouldSaveResultToDB(t *testing.T) {
 	}
 
 	err = ch.PublishWithContext(
-		ctxt,
-		cfg.JobEventsConsumer.Exchange,
-		cfg.JobEventsConsumer.RoutingKey,
+		context.Background(),
+		"job-events",
+		"event",
 		true,
 		false,
 		amqp.Publishing{
@@ -91,9 +65,9 @@ func TestConsumerJobStatusesShouldSaveResultToDB(t *testing.T) {
 	}
 
 	err = retry.Do(
-		ctxt,
+		context.Background(),
 		retry.WithMaxRetries(
-			10,
+			5,
 			retry.NewConstant(1*time.Second),
 		),
 		func(ctxt context.Context) error {

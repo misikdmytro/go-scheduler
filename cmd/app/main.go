@@ -42,10 +42,6 @@ func main() {
 
 	go func() {
 		log.Printf("start consumer")
-		if err := d.JC.Setup(); err != nil {
-			panic(err)
-		}
-
 		if err := d.JC.Consume(); err != nil {
 			if errors.Is(err, consumer.ErrConsumerClosed) {
 				return

@@ -28,7 +28,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "username"]
+      test: [ "CMD", "pg_isready", "-U", "username" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,10 +60,26 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  rabbitmqctl:
+    image: rabbitmq:3.8-management
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_USER: username
+      RABBITMQ_PASS: password
+      RABBITMQ_HOST: rabbitmq
+    command: |
+      /bin/bash -c
+        "rabbitmqadmin declare exchange name=jobs type=direct --host=rabbitmq --username=username --password=password &&
+        rabbitmqadmin declare exchange name=job-events type=direct --host=rabbitmq --username=username --password=password &&
+        rabbitmqadmin declare queue name=job-events --host=rabbitmq --username=username --password=password &&
+        rabbitmqadmin declare binding source=job-events destination=job-events routing_key=event --host=rabbitmq --username=username --password=password"
 
   adminer:
     image: adminer
