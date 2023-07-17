@@ -15,10 +15,10 @@ type Broker[T any] interface {
 
 type jobLaunchBroker struct {
 	rc config.RabbitMQConfig
-	jc config.JobsConfig
+	jc config.PublisherConfig
 }
 
-func NewJobLaunchBroker(rc config.RabbitMQConfig, jc config.JobsConfig) Broker[model.JobLaunchMessage] {
+func NewJobLaunchBroker(rc config.RabbitMQConfig, jc config.PublisherConfig) Broker[model.JobLaunchMessage] {
 	return &jobLaunchBroker{rc: rc, jc: jc}
 }
 

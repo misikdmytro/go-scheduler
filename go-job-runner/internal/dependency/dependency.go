@@ -46,7 +46,7 @@ func NewDependency() (*Dependency, error) {
 	jr := repository.NewJobRepository(cfg.DB)
 	js := service.NewJobService(wr, jr, jb)
 	jh := handler.NewJobHandler(js)
-	jc := consumer.NewJobStatusConsumer(cfg.RabbitMQ, cfg.JobEventsConsumer, js)
+	jc := consumer.NewJobStatusConsumer(cfg.RabbitMQ, cfg.JobEvents, js)
 
 	hr := repository.NewHealthRepository(cfg.DB)
 	hs := service.NewHealthService(hr)

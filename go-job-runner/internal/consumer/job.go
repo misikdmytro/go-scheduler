@@ -17,7 +17,7 @@ type jobStatusConsumer struct {
 
 func NewJobStatusConsumer(
 	rc config.RabbitMQConfig,
-	cc config.ConsumerConfig,
+	cc config.SubscriberConfig,
 	j service.JobService,
 ) Consumer {
 	return &jobStatusConsumer{

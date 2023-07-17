@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/misikdmytro/go-job-runner/internal/broker"
-	"github.com/misikdmytro/go-job-runner/internal/config"
+	"github.com/misikdmytro/go-job-worker/internal/broker"
+	"github.com/misikdmytro/go-job-worker/internal/config"
 )
 
 var ErrConsumerClosed = fmt.Errorf("consumer closed")

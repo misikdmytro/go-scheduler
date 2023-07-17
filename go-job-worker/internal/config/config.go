@@ -2,19 +2,6 @@ package config
 
 import "github.com/spf13/viper"
 
-type ServerConfig struct {
-	Host string
-	Port string
-}
-
-type DBConfig struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	DBName   string
-}
-
 type RabbitMQConfig struct {
 	Host     string
 	Port     string
@@ -32,11 +19,6 @@ type SubscriberConfig struct {
 }
 
 type Config struct {
-	Server    ServerConfig
-	DB        DBConfig
-	RabbitMQ  RabbitMQConfig
-	Jobs      PublisherConfig
-	JobEvents SubscriberConfig
 }
 
 func LoadConfig() (Config, error) {
