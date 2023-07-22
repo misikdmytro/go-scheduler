@@ -80,7 +80,7 @@ paths:
       summary: Health check
       tags:
       - health
-  /job:
+  /jobs:
     post:
       consumes:
       - application/json
@@ -109,7 +109,7 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       summary: Launch job
       tags:
-      - job
+      - jobs
   /workers:
     put:
       consumes:

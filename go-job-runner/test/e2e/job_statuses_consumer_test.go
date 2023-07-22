@@ -33,7 +33,7 @@ func TestConsumerJobStatusesShouldSaveResultToDB(t *testing.T) {
 	event := model.JobEventMessage{
 		JobID:     uuid.NewString(),
 		Message:   fmt.Sprintf("test-%s", uuid.NewString()),
-		Timestamp: time.Now().Unix(),
+		Timestamp: time.Now().UnixMilli(),
 		Output: map[string]any{
 			"test": "test",
 		},

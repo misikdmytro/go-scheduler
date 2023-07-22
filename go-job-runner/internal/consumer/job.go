@@ -44,7 +44,7 @@ func (c *jobStatusConsumer) consumeCallback(ctx context.Context, m model.JobEven
 		ctx,
 		m.JobID,
 		m.Message,
-		time.Unix(m.Timestamp, 0),
+		time.UnixMilli(m.Timestamp),
 		m.Output,
 	)
 

@@ -14,5 +14,5 @@ rabbitmq:
 jobs:
   exchange: jobs
 jobEvents:
-  consumer: job-events-consumer
+  consumer: job-events-docker-consumer
   queue: job-events

@@ -19,6 +19,9 @@ type SubscriberConfig struct {
 }
 
 type Config struct {
+	RabbitMQ  RabbitMQConfig
+	JobEvents PublisherConfig
+	Jobs      SubscriberConfig
 }
 
 func LoadConfig() (Config, error) {

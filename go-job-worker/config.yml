@@ -1,0 +1,10 @@
+rabbitmq:
+  host: localhost
+  port: 5672
+  user: username
+  password: password
+jobs:
+  group: random-worker-local-consumer
+  queue: random-worker
+jobEvents:
+  exchange: job-events

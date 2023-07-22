@@ -39,7 +39,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/job": {
+        "/jobs": {
             "post": {
                 "description": "Launch job",
                 "consumes": [
@@ -49,7 +49,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "job"
+                    "jobs"
                 ],
                 "summary": "Launch job",
                 "parameters": [

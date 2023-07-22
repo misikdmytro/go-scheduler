@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   job-runner:
@@ -15,6 +15,21 @@ services:
       - GIN_MODE=release
     volumes:
       - ./go-job-runner/docker.yml:/out/config.yml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  job-worker:
+    build:
+      context: ./go-job-worker
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./go-job-worker/docker.yml:/out/config.yml
 
   postgres:
     image: postgres:15
@@ -28,7 +43,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "username" ]
+      test: ["CMD", "pg_isready", "-U", "username"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,7 +75,7 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
-      test: [ "CMD", "rabbitmqctl", "status" ]
+      test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -76,10 +91,16 @@ services:
       RABBITMQ_HOST: rabbitmq
     command: |
       /bin/bash -c
-        "rabbitmqadmin declare exchange name=jobs type=direct --host=rabbitmq --username=username --password=password &&
+        "
+        rabbitmqadmin declare exchange name=jobs type=direct --host=rabbitmq --username=username --password=password &&
         rabbitmqadmin declare exchange name=job-events type=direct --host=rabbitmq --username=username --password=password &&
+
         rabbitmqadmin declare queue name=job-events --host=rabbitmq --username=username --password=password &&
-        rabbitmqadmin declare binding source=job-events destination=job-events routing_key=event --host=rabbitmq --username=username --password=password"
+        rabbitmqadmin declare queue name=random-worker --host=rabbitmq --username=username --password=password &&
+
+        rabbitmqadmin declare binding source=job-events destination=job-events routing_key=event --host=rabbitmq --username=username --password=password &&
+        rabbitmqadmin declare binding source=jobs destination=random-worker routing_key=worker.random --host=rabbitmq --username=username --password=password
+        "
 
   adminer:
     image: adminer

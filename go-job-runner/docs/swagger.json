@@ -27,7 +27,7 @@
                 }
             }
         },
-        "/job": {
+        "/jobs": {
             "post": {
                 "description": "Launch job",
                 "consumes": [
@@ -37,7 +37,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "job"
+                    "jobs"
                 ],
                 "summary": "Launch job",
                 "parameters": [

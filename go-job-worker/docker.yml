@@ -1,0 +1,10 @@
+rabbitmq:
+  host: rabbitmq
+  port: 5672
+  user: username
+  password: password
+jobs:
+  group: random-worker-docker-consumer
+  queue: random-worker
+jobEvents:
+  exchange: job-events

@@ -26,14 +26,14 @@ func NewJobHandler(s service.JobService) JobHandler {
 // Launch godoc
 // @Summary Launch job
 // @Description Launch job
-// @Tags job
+// @Tags jobs
 // @Accept json
 // @Produce json
 // @Param request body model.LaunchJobRequest true "Launch job request"
 // @Success 200 {object} model.LaunchJobResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 500 {object} model.ErrorResponse
-// @Router /job [post]
+// @Router /jobs [post]
 func (h *jobHandler) Launch(c *gin.Context) {
 	var req model.LaunchJobRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
