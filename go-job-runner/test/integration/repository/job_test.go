@@ -45,3 +45,45 @@ func TestAppendStatus(t *testing.T) {
 
 	assert.Equal(t, 1, count)
 }
+
+func TestGetStatuses(t *testing.T) {
+	cfg, err := config.LoadConfigFrom("../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := repository.NewJobRepository(cfg.DB)
+
+	jobID := uuid.NewString()
+	message := fmt.Sprintf("test-%s", uuid.NewString())
+	timestamp := time.Now()
+	output := map[string]any{
+		"test": "test",
+	}
+
+	id, err := r.AppendStatus(context.Background(), jobID, message, timestamp, output)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, id)
+
+	statuses, err := r.GetStatuses(context.Background(), jobID)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, statuses)
+	assert.Equal(t, 1, len(statuses))
+	assert.Equal(t, message, statuses[0].Message)
+	assert.Equal(t, output, statuses[0].Output)
+	assert.Equal(t, id, statuses[0].ID)
+	assert.Equal(t, jobID, statuses[0].JobID)
+}
+
+func TestGetStatusesNoJob(t *testing.T) {
+	cfg, err := config.LoadConfigFrom("../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := repository.NewJobRepository(cfg.DB)
+
+	statuses, err := r.GetStatuses(context.Background(), uuid.NewString())
+	assert.NoError(t, err)
+	assert.Empty(t, statuses)
+}

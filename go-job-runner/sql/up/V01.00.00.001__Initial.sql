@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS jobs(
     id BIGSERIAL PRIMARY KEY,
     job_id VARCHAR(36),
     message VARCHAR(500) NOT NULL,
-    timestamp TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     output JSON
 );
 CREATE INDEX IF NOT EXISTS jobs_job_id_index ON jobs (job_id);

@@ -53,4 +53,9 @@ func (r *jobRepoMock) AppendStatus(c context.Context, jobID, message string, tim
 	return args.Get(0).(int64), args.Error(1)
 }
 
+func (r *jobRepoMock) GetStatuses(c context.Context, jobID string) ([]model.JobStatus, error) {
+	args := r.Called(c, jobID)
+	return args.Get(0).([]model.JobStatus), args.Error(1)
+}
+
 var _ repository.JobRepository = (*jobRepoMock)(nil)

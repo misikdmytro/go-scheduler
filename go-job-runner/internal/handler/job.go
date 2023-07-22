@@ -5,14 +5,17 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/elliotchance/pie/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/misikdmytro/go-job-runner/internal/exception"
+	"github.com/misikdmytro/go-job-runner/internal/model"
 	"github.com/misikdmytro/go-job-runner/internal/service"
-	"github.com/misikdmytro/go-job-runner/pkg/model"
+	pkgmodel "github.com/misikdmytro/go-job-runner/pkg/model"
 )
 
 type JobHandler interface {
-	Launch(c *gin.Context)
+	Launch(*gin.Context)
+	JobStatuses(*gin.Context)
 }
 
 type jobHandler struct {
@@ -35,7 +38,7 @@ func NewJobHandler(s service.JobService) JobHandler {
 // @Failure 500 {object} model.ErrorResponse
 // @Router /jobs [post]
 func (h *jobHandler) Launch(c *gin.Context) {
-	var req model.LaunchJobRequest
+	var req pkgmodel.LaunchJobRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("failed to bind request. error: %v", err)
 		c.JSON(toErrorResponse(exception.JobError{
@@ -53,7 +56,39 @@ func (h *jobHandler) Launch(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, model.LaunchJobResponse{
+	c.JSON(http.StatusOK, pkgmodel.LaunchJobResponse{
 		JobID: jobID,
+	})
+}
+
+// JobStatuses godoc
+// @Summary Get job statuses
+// @Description Get job statuses
+// @Tags jobs
+// @Accept json
+// @Produce json
+// @Param jobID path string true "Job ID"
+// @Success 200 {array} model.JobStatusAPI
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /jobs/{jobID}/statuses [get]
+func (h *jobHandler) JobStatuses(c *gin.Context) {
+	jobID := c.Param("id")
+
+	statuses, err := h.s.GetJobStatuses(c, jobID)
+	if err != nil {
+		log.Printf("failed to get job statuses. error: %v", err)
+		c.JSON(toErrorResponse(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, pkgmodel.JobStatusesResponse{
+		Statuses: pie.Map(statuses, func(s model.JobStatus) pkgmodel.JobStatusAPI {
+			return pkgmodel.JobStatusAPI{
+				Message:   s.Message,
+				Timestamp: s.Timestamp,
+				Output:    s.Output,
+			}
+		}),
 	})
 }

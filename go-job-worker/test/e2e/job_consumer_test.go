@@ -28,7 +28,7 @@ func TestWorkerShouldTrackJobProgress(t *testing.T) {
 	defer close()
 
 	q, err := ch.QueueDeclare(
-		fmt.Sprintf("test-%s", uuid.New().String()),
+		fmt.Sprintf("test-%s", uuid.NewString()),
 		false,
 		true,
 		true,
@@ -51,7 +51,7 @@ func TestWorkerShouldTrackJobProgress(t *testing.T) {
 	}
 
 	l := model.JobLaunchMessage{
-		JobID:     uuid.New().String(),
+		JobID:     uuid.NewString(),
 		Timestamp: time.Now().UnixMilli(),
 		Input: map[string]any{
 			"key":   "value",

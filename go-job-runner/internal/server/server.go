@@ -26,6 +26,7 @@ func NewEngine(
 	j := e.Group("/jobs")
 	{
 		j.POST("/", jh.Launch)
+		j.GET("/:id/statuses", jh.JobStatuses)
 	}
 
 	h := e.Group("/health")

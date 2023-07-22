@@ -107,3 +107,50 @@ func TestAppendJobStatus(t *testing.T) {
 		})
 	}
 }
+
+func TestGetStatuses(t *testing.T) {
+	data := []struct {
+		testName string
+		jobID    string
+		statuses []model.JobStatus
+		err      error
+	}{
+		{
+			testName: "ok",
+			jobID:    uuid.NewString(),
+			statuses: []model.JobStatus{
+				{
+					ID:        1,
+					JobID:     uuid.NewString(),
+					Message:   "test message",
+					Timestamp: time.Now(),
+					Output:    map[string]any{"test": "test"},
+				},
+			},
+			err: nil,
+		},
+		{
+			testName: "error",
+			jobID:    uuid.NewString(),
+			statuses: nil,
+			err:      fmt.Errorf("test error"),
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.testName, func(t *testing.T) {
+			jr := &jobRepoMock{}
+			jr.On("GetStatuses", mock.Anything, d.jobID).Return(d.statuses, d.err)
+
+			s := service.NewJobService(nil, jr, nil)
+			statuses, err := s.GetJobStatuses(context.Background(), d.jobID)
+
+			if d.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, d.statuses, statuses)
+			}
+		})
+	}
+}

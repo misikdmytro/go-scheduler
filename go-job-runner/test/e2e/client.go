@@ -161,3 +161,34 @@ func (c *client) LaunchJob(workerID string, body map[string]any) (model.LaunchJo
 
 	return ljresp, nil
 }
+
+func (c *client) GetJobStatuses(jobID string) (model.JobStatusesResponse, error) {
+	cl := http.Client{}
+
+	req, err := http.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf("%s/jobs/%s/statuses", c.baseAddress, jobID),
+		nil,
+	)
+
+	if err != nil {
+		return model.JobStatusesResponse{}, err
+	}
+
+	resp, err := cl.Do(req)
+	if err != nil {
+		return model.JobStatusesResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return model.JobStatusesResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var gjsresp model.JobStatusesResponse
+	if err := json.NewDecoder(resp.Body).Decode(&gjsresp); err != nil {
+		return model.JobStatusesResponse{}, err
+	}
+
+	return gjsresp, nil
+}

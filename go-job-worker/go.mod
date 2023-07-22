@@ -3,7 +3,7 @@ module github.com/misikdmytro/go-job-worker
 go 1.20
 
 require (
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.3.0
 	github.com/rabbitmq/amqp091-go v1.8.1
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.3
